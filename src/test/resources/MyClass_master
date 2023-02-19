@@ -1,0 +1,9 @@
+public class MyClass {
+    public int calc(int a, int b) {
+        int sum = a + b;
+        if (sum > 100) {
+            return sum / 10;
+        }
+        return sum * a;
+    }
+}
