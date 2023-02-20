@@ -9,18 +9,19 @@ import org.eclipse.jgit.patch.FileHeader;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.pitest.util.Log;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class CodeChangelogResolver {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CodeChangelogResolver.class);
+    private static final Logger LOGGER = Log.getLogger();
 
     public CodeChangelog resolve(String repositoryPath, String source, String target) {
         try (FileRepository repo = new FileRepository(new File(repositoryPath));
@@ -35,14 +36,15 @@ public class CodeChangelogResolver {
                     .flatMap(entry -> toChangedCode(formatter, entry))
                     .collect(Collectors.toList());
             LOGGER.info("Found " + codeChanges.size() + " changes: ");
-            if (LOGGER.isDebugEnabled()) {
+
+            if (LOGGER.isLoggable(Level.FINE)) {
                 for (CodeChange codeChange : codeChanges) {
-                    LOGGER.debug(codeChange.toString());
+                    LOGGER.fine(codeChange.toString());
                 }
             }
             return new CodeChangelog(codeChanges);
-        } catch (IOException ex) {
-            LOGGER.error(ex.getMessage(), ex);
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, e, e::getMessage);
             return new CodeChangelog(Collections.emptyList());
         }
     }
@@ -63,7 +65,7 @@ public class CodeChangelogResolver {
                     .filter(CodeChangelogResolver::isInsertOrReplace)
                     .map(edit -> new CodeChange(diffEntry.getNewPath(), edit.getBeginB() + 1, edit.getEndB()));
         } catch (IOException e) {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.log(Level.SEVERE, e, e::getMessage);
             return Stream.empty();
         }
     }
