@@ -25,6 +25,11 @@ public class CodeChangelog implements Iterable<CodeChange> {
         return changes.size();
     }
 
+    public boolean contains(String clazz, int line) {
+        return changes.stream()
+                .anyMatch(change -> change.getClassName().equals(clazz) && change.getLineFrom() >= line && change.getLineTo() <= line);
+    }
+
     @Override
     public Iterator<CodeChange> iterator() {
         return changes.iterator();

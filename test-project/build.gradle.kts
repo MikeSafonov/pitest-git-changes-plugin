@@ -33,6 +33,7 @@ tasks.test {
 
 pitest {
     pitestVersion.set("1.11.0")
+    features.set(listOf("+git-changes"))
     targetClasses.set(listOf("com.github.mikesafonov.test.*"))
     targetTests.set(listOf("com.github.mikesafonov.test.*"))
     outputFormats.set(listOf("XML", "HTML"))
