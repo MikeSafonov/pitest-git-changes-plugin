@@ -5,7 +5,6 @@ import org.pitest.mutationtest.build.MutationInterceptor;
 import org.pitest.mutationtest.build.MutationInterceptorFactory;
 import org.pitest.plugin.Feature;
 import org.pitest.plugin.FeatureParameter;
-import org.pitest.util.Log;
 
 import java.nio.file.Paths;
 
@@ -14,16 +13,18 @@ public class GitChangesMutationInterceptorFactory implements MutationInterceptor
             .withDescription("Source git branch");
     private static final FeatureParameter TARGET_PARAMETER = FeatureParameter.named("target")
             .withDescription("Target git branch analyse to. Default 'master'");
+    private static final FeatureParameter GIT_REPOSITORY_PATH = FeatureParameter.named("repository")
+            .withDescription("Path to git repository root folder. Default project folder");
 
     @Override
     public MutationInterceptor createInterceptor(InterceptorParameters params) {
         String source = params.getString(SOURCE_PARAMETER).orElseThrow(() -> new RuntimeException("Unable to find 'source' parameter"));
         String target = params.getString(TARGET_PARAMETER).orElse("master");
+        String repository = params.getString(GIT_REPOSITORY_PATH).orElseGet(() -> Paths.get("").toAbsolutePath().toString());
 
         CodeChangelogResolver resolver = new CodeChangelogResolver();
-        CodeChangelog changelog = resolver.resolve(Paths.get("").toAbsolutePath().toString(), source, target);
+        CodeChangelog changelog = resolver.resolve(repository, source, target);
 
-        Log.getLogger().info("Creating git changes interceptor " + this);
         return new GitChangesMutationInterceptor(changelog);
     }
 
@@ -32,7 +33,8 @@ public class GitChangesMutationInterceptorFactory implements MutationInterceptor
         return Feature.named("git-changes")
                 .withDescription(description())
                 .withParameter(SOURCE_PARAMETER)
-                .withParameter(TARGET_PARAMETER);
+                .withParameter(TARGET_PARAMETER)
+                .withParameter(GIT_REPOSITORY_PATH);
     }
 
     @Override
