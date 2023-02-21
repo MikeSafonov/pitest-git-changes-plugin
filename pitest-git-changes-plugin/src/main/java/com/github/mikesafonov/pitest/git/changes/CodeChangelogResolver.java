@@ -18,6 +18,8 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -26,7 +28,7 @@ import java.util.stream.Stream;
 public class CodeChangelogResolver {
     private static final Logger LOGGER = Log.getLogger();
 
-    public CodeChangelog resolve(String repositoryPath, String source, String target) {
+    public CodeChangelog resolve(String repositoryPath, String source, String target, Function<CodeChange, Optional<CodeChange>> mapper) {
         try (Repository repo = findRepository(repositoryPath);
              RevWalk rw = new RevWalk(repo);
              DiffFormatter formatter = createFormatter(repo)) {
@@ -35,17 +37,20 @@ public class CodeChangelogResolver {
             RevCommit commit = rw.parseCommit(repo.resolve(source));
             RevCommit parent = rw.parseCommit(repo.resolve(target));
 
-            List<CodeChange> codeChanges = formatter.scan(parent.getTree(), commit.getTree()).stream()
+            List<CodeChange> changes = formatter.scan(parent.getTree(), commit.getTree()).stream()
                     .flatMap(entry -> toChangedCode(formatter, entry))
+                    .map(mapper)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
                     .collect(Collectors.toList());
-            LOGGER.info("Found " + codeChanges.size() + " changes: ");
+            LOGGER.info("Found " + changes.size() + " changes ");
 
             if (LOGGER.isLoggable(Level.FINE)) {
-                for (CodeChange codeChange : codeChanges) {
-                    LOGGER.fine(codeChange.toString());
+                for (CodeChange change : changes) {
+                    LOGGER.fine(change.toString());
                 }
             }
-            return new CodeChangelog(codeChanges);
+            return new CodeChangelog(changes);
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e, e::getMessage);
             return new CodeChangelog(Collections.emptyList());
@@ -79,7 +84,7 @@ public class CodeChangelogResolver {
             FileHeader header = formatter.toFileHeader(diffEntry);
             return header.toEditList().stream()
                     .filter(CodeChangelogResolver::isInsertOrReplace)
-                    .map(edit -> new CodeChange(diffEntry.getNewPath(), edit.getBeginB() + 1, edit.getEndB()));
+                    .map(edit -> new CodeChange(toClassName(diffEntry.getNewPath()), edit.getBeginB() + 1, edit.getEndB()));
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e, e::getMessage);
             return Stream.empty();
@@ -89,5 +94,16 @@ public class CodeChangelogResolver {
     private static boolean isInsertOrReplace(Edit edit) {
         Edit.Type type = edit.getType();
         return type == Edit.Type.INSERT || type == Edit.Type.REPLACE;
+    }
+
+    private static String toClassName(String filename) {
+        String maybeClassName = filename.replace("/", ".");
+        if (maybeClassName.endsWith(".java")) {
+            return maybeClassName.replace(".java", "");
+        }
+        if (maybeClassName.endsWith(".kt")) {
+            return maybeClassName.replace(".kt", "");
+        }
+        return maybeClassName;
     }
 }

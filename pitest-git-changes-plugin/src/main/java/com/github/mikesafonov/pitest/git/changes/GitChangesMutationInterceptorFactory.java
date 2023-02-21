@@ -23,7 +23,7 @@ public class GitChangesMutationInterceptorFactory implements MutationInterceptor
         String repository = params.getString(GIT_REPOSITORY_PATH).orElseGet(() -> Paths.get("").toAbsolutePath().toString());
 
         CodeChangelogResolver resolver = new CodeChangelogResolver();
-        CodeChangelog changelog = resolver.resolve(repository, source, target);
+        CodeChangelog changelog = resolver.resolve(repository, source, target, mapper(params));
 
         return new GitChangesMutationInterceptor(changelog);
     }
@@ -40,5 +40,11 @@ public class GitChangesMutationInterceptorFactory implements MutationInterceptor
     @Override
     public String description() {
         return "git changes plugin";
+    }
+
+    private static ToMutationClassPathClassNameFunction mapper(InterceptorParameters params) {
+        return new ToMutationClassPathClassNameFunction(
+                params.data().getClassPath().findClasses(params.data().getTargetClassesFilter())
+        );
     }
 }

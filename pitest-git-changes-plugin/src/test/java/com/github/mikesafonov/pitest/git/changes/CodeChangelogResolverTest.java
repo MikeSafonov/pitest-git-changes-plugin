@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -55,7 +56,7 @@ public class CodeChangelogResolverTest {
 
     @Test
     void shouldReturnExpectedChanges() {
-        CodeChangelog changelog = resolver.resolve(repository.getPath() + "/.git", "change", "master");
+        CodeChangelog changelog = resolver.resolve(repository.getPath() + "/.git", "change", "master", Optional::of);
         assertTrue(changelog.isNotEmpty());
         assertFalse(changelog.isEmpty());
 

@@ -34,7 +34,7 @@ public class GitChangesMutationInterceptor implements MutationInterceptor {
     public Collection<MutationDetails> intercept(Collection<MutationDetails> mutations, Mutater m) {
         return mutations.stream()
                 .peek(mutation -> LOGGER.info(mutation.toString()))
-                .filter(mutation -> changelog.contains(mutation.getFilename(), mutation.getLineNumber()))
+                .filter(mutation -> changelog.contains(mutation.getId().getClassName().toString(), mutation.getLineNumber()))
                 .collect(Collectors.toList());
     }
 
