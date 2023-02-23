@@ -33,7 +33,7 @@ tasks.test {
 
 pitest {
     pitestVersion.set("1.11.0")
-    features.set(listOf("+git-changes(source[test] target[main] repository[${project.parent!!.rootDir.absolutePath}])"))
+    features.set(listOf("+git-changes(source[test] target[main])"))
     targetClasses.set(listOf("com.github.mikesafonov.test.*"))
     targetTests.set(listOf("com.github.mikesafonov.test.*"))
     outputFormats.set(listOf("XML", "HTML"))

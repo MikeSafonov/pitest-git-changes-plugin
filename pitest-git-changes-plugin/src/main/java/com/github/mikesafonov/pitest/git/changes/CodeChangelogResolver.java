@@ -59,15 +59,18 @@ public class CodeChangelogResolver {
 
     @SneakyThrows
     private Repository findRepository(String path) {
-        String gitPath = path;
-        if (!path.endsWith(".git")) {
-            gitPath = Paths.get(path).resolve(".git").toString();
-        }
         return new FileRepositoryBuilder()
-                .setGitDir(new File(gitPath))
+                .setGitDir((path == null) ? null : new File(toGitPath(path)))
                 .readEnvironment()
                 .findGitDir()
                 .build();
+    }
+
+    private String toGitPath(String path) {
+        if (path.endsWith(".git"))
+            return path;
+        else
+            return Paths.get(path).resolve(".git").toString();
     }
 
     private DiffFormatter createFormatter(Repository repository) {
