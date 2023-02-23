@@ -5,11 +5,16 @@ import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.diff.Edit;
 import org.eclipse.jgit.diff.RawTextComparator;
+import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.patch.FileHeader;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+import org.eclipse.jgit.treewalk.AbstractTreeIterator;
+import org.eclipse.jgit.treewalk.CanonicalTreeParser;
+import org.eclipse.jgit.treewalk.FileTreeIterator;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
 import org.pitest.util.Log;
 
@@ -27,12 +32,13 @@ public class GitChangeResolver {
         try (Repository repo = findRepository(repositoryPath);
              RevWalk rw = new RevWalk(repo);
              DiffFormatter formatter = createFormatter(repo)) {
-            LOGGER.info("Resolving code changes between " + source + " and " + target + " branches");
+            LOGGER.info("Resolving code changes between " + ((source == null) ? "local" : source) + " and " + target + " branches");
 
-            RevCommit commit = rw.parseCommit(repo.resolve(source));
-            RevCommit parent = rw.parseCommit(repo.resolve(target));
-
-            return formatter.scan(parent.getTree(), commit.getTree()).stream()
+            return formatter.scan(
+                            targetTreeIterator(target, rw, repo),
+                            sourceTreeIterator(source, rw, repo)
+                    )
+                    .stream()
                     .flatMap(entry -> toGitChange(formatter, entry));
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e, e::getMessage);
@@ -54,6 +60,28 @@ public class GitChangeResolver {
             return path;
         else
             return Paths.get(path).resolve(".git").toString();
+    }
+
+    private AbstractTreeIterator sourceTreeIterator(String source, RevWalk rw, Repository repo) {
+        if (source == null) {
+            return new FileTreeIterator(repo);
+        }
+        return getTreeIterator(source, rw, repo);
+    }
+
+    private AbstractTreeIterator targetTreeIterator(String target, RevWalk rw, Repository repo) {
+        return getTreeIterator(target, rw, repo);
+    }
+
+    @SneakyThrows
+    private AbstractTreeIterator getTreeIterator(String rev, RevWalk rw, Repository repo) {
+        RevCommit commit = rw.parseCommit(repo.resolve(rev));
+        RevTree tree = commit.getTree();
+        CanonicalTreeParser treeParser = new CanonicalTreeParser();
+        try (ObjectReader reader = repo.newObjectReader()) {
+            treeParser.reset(reader, tree.getId());
+        }
+        return treeParser;
     }
 
     private DiffFormatter createFormatter(Repository repository) {
