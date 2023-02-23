@@ -1,14 +1,23 @@
 plugins {
-    id("java")
+    id("java-library")
+    id("maven-publish")
+    id("signing")
 }
 
 group = "com.github.mikesafonov"
+version = "0.0.1"
 
 repositories {
     mavenCentral()
 }
 
+tasks.jar {
+    enabled = true
+}
+
 java {
+    withJavadocJar()
+    withSourcesJar()
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(8))
     }
@@ -39,4 +48,47 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+            pom {
+                name.set("pitest-git-changes-plugin")
+                url.set("https://github.com/MikeSafonov/pitest-git-changes-plugin")
+                organization {
+                    name.set("com.github.mikesafonov")
+                    url.set("https://github.com/MikeSafonov")
+                }
+                issueManagement {
+                    system.set("GitHub")
+                    url.set("https://github.com/MikeSafonov/pitest-git-changes-plugin/issues")
+                }
+                licenses {
+                    license {
+                        name.set("MIT")
+                        url.set("https://github.com/MikeSafonov/pitest-git-changes-plugin/blob/master/LICENSE")
+                        distribution.set("repo")
+                    }
+                }
+                scm {
+                    url.set("https://github.com/MikeSafonov/pitest-git-changes-plugin")
+                    connection.set("scm:git:git://github.com/MikeSafonov/pitest-git-changes-plugin.git")
+                    developerConnection.set("scm:git:ssh://git@github.com:MikeSafonov/pitest-git-changes-plugin.git")
+                }
+                developers {
+                    developer {
+                        name.set("Mike Safonov")
+                        organization.set("com.github.mikesafonov")
+                        organizationUrl.set("https://github.com/MikeSafonov")
+                    }
+                }
+            }
+        }
+    }
+}
+
+signing {
+    sign(publishing.publications["mavenJava"])
 }
