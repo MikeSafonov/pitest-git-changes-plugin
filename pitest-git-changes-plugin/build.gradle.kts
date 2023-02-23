@@ -57,6 +57,7 @@ publishing {
             pom {
                 name.set("pitest-git-changes-plugin")
                 url.set("https://github.com/MikeSafonov/pitest-git-changes-plugin")
+                description.set("Pitest plugin for mutating git changes")
                 organization {
                     name.set("com.github.mikesafonov")
                     url.set("https://github.com/MikeSafonov")
