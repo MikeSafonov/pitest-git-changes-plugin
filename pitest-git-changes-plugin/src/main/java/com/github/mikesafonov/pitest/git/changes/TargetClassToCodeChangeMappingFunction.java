@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 @RequiredArgsConstructor
-public class ToMutationClassPathClassNameFunction implements Function<GitChange, Optional<CodeChange>> {
+public class TargetClassToCodeChangeMappingFunction implements Function<GitChange, Optional<CodeChange>> {
     private final Collection<String> targetClasses;
 
     @Override

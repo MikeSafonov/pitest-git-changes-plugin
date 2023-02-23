@@ -20,7 +20,7 @@ public class GitChangesMutationInterceptorFactory implements MutationInterceptor
     private static final FeatureParameter TARGET_PARAMETER = FeatureParameter.named("target")
             .withDescription("Target git branch analyse to. Default 'master'");
     private static final FeatureParameter GIT_REPOSITORY_PATH = FeatureParameter.named("repository")
-            .withDescription("Optional path to git repository directory. Searching git repository starting from project directory");
+            .withDescription("Optional path to git repository directory. If not present searching git repository starting from project directory");
 
     @Override
     public MutationInterceptor createInterceptor(InterceptorParameters params) {
@@ -52,8 +52,8 @@ public class GitChangesMutationInterceptorFactory implements MutationInterceptor
         return "git changes plugin";
     }
 
-    private static ToMutationClassPathClassNameFunction mapper(InterceptorParameters params) {
-        return new ToMutationClassPathClassNameFunction(
+    private static TargetClassToCodeChangeMappingFunction mapper(InterceptorParameters params) {
+        return new TargetClassToCodeChangeMappingFunction(
                 params.data().getClassPath().findClasses(params.data().getTargetClassesFilter())
         );
     }
