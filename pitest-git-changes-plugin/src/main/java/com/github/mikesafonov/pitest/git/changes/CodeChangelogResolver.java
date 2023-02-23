@@ -1,6 +1,7 @@
 package com.github.mikesafonov.pitest.git.changes;
 
 import lombok.SneakyThrows;
+import org.apache.commons.io.FilenameUtils;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.diff.Edit;
@@ -100,13 +101,7 @@ public class CodeChangelogResolver {
     }
 
     private static String toClassName(String filename) {
-        String maybeClassName = filename.replace("/", ".");
-        if (maybeClassName.endsWith(".java")) {
-            return maybeClassName.replace(".java", "");
-        }
-        if (maybeClassName.endsWith(".kt")) {
-            return maybeClassName.replace(".kt", "");
-        }
-        return maybeClassName;
+        String name = FilenameUtils.removeExtension(filename);
+        return name.replace("/", ".");
     }
 }
