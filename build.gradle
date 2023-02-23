@@ -3,6 +3,7 @@ plugins {
 }
 
 group = "com.github.mikesafonov"
+version = project.pluginVersion
 
 nexusPublishing {
     repositories {

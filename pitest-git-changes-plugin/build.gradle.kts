@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.github.mikesafonov"
-version = "0.0.1"
+version = project.properties["pluginVersion"]!!
 
 repositories {
     mavenCentral()
