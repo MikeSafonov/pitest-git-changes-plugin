@@ -1,7 +1,6 @@
 package com.github.mikesafonov.pitest.git.changes;
 
 import lombok.SneakyThrows;
-import org.apache.commons.io.FilenameUtils;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.diff.Edit;
@@ -17,19 +16,14 @@ import org.pitest.util.Log;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class CodeChangelogResolver {
+public class GitChangeResolver {
     private static final Logger LOGGER = Log.getLogger();
 
-    public CodeChangelog resolve(String repositoryPath, String source, String target, Function<CodeChange, Optional<CodeChange>> mapper) {
+    public Stream<GitChange> resolve(String repositoryPath, String source, String target) {
         try (Repository repo = findRepository(repositoryPath);
              RevWalk rw = new RevWalk(repo);
              DiffFormatter formatter = createFormatter(repo)) {
@@ -38,23 +32,11 @@ public class CodeChangelogResolver {
             RevCommit commit = rw.parseCommit(repo.resolve(source));
             RevCommit parent = rw.parseCommit(repo.resolve(target));
 
-            List<CodeChange> changes = formatter.scan(parent.getTree(), commit.getTree()).stream()
-                    .flatMap(entry -> toChangedCode(formatter, entry))
-                    .map(mapper)
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
-                    .collect(Collectors.toList());
-            LOGGER.info("Found " + changes.size() + " changes ");
-
-            if (LOGGER.isLoggable(Level.FINE)) {
-                for (CodeChange change : changes) {
-                    LOGGER.fine(change.toString());
-                }
-            }
-            return new CodeChangelog(changes);
+            return formatter.scan(parent.getTree(), commit.getTree()).stream()
+                    .flatMap(entry -> toGitChange(formatter, entry));
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e, e::getMessage);
-            return new CodeChangelog(Collections.emptyList());
+            return Stream.empty();
         }
     }
 
@@ -83,12 +65,12 @@ public class CodeChangelogResolver {
         return formatter;
     }
 
-    private Stream<CodeChange> toChangedCode(DiffFormatter formatter, DiffEntry diffEntry) {
+    private Stream<GitChange> toGitChange(DiffFormatter formatter, DiffEntry diffEntry) {
         try {
             FileHeader header = formatter.toFileHeader(diffEntry);
             return header.toEditList().stream()
-                    .filter(CodeChangelogResolver::isInsertOrReplace)
-                    .map(edit -> new CodeChange(toClassName(diffEntry.getNewPath()), edit.getBeginB() + 1, edit.getEndB()));
+                    .filter(GitChangeResolver::isInsertOrReplace)
+                    .map(edit -> new GitChange(diffEntry.getNewPath(), edit.getBeginB() + 1, edit.getEndB()));
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e, e::getMessage);
             return Stream.empty();
@@ -98,10 +80,5 @@ public class CodeChangelogResolver {
     private static boolean isInsertOrReplace(Edit edit) {
         Edit.Type type = edit.getType();
         return type == Edit.Type.INSERT || type == Edit.Type.REPLACE;
-    }
-
-    private static String toClassName(String filename) {
-        String name = FilenameUtils.removeExtension(filename);
-        return name.replace("/", ".");
     }
 }

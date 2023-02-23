@@ -5,8 +5,16 @@ import org.pitest.mutationtest.build.MutationInterceptor;
 import org.pitest.mutationtest.build.MutationInterceptorFactory;
 import org.pitest.plugin.Feature;
 import org.pitest.plugin.FeatureParameter;
+import org.pitest.util.Log;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class GitChangesMutationInterceptorFactory implements MutationInterceptorFactory {
+    private static final Logger LOGGER = Log.getLogger();
     private static final FeatureParameter SOURCE_PARAMETER = FeatureParameter.named("source")
             .withDescription("Source git branch");
     private static final FeatureParameter TARGET_PARAMETER = FeatureParameter.named("target")
@@ -20,10 +28,14 @@ public class GitChangesMutationInterceptorFactory implements MutationInterceptor
         String target = params.getString(TARGET_PARAMETER).orElse("master");
         String repository = params.getString(GIT_REPOSITORY_PATH).orElse(null);
 
-        CodeChangelogResolver resolver = new CodeChangelogResolver();
-        CodeChangelog changelog = resolver.resolve(repository, source, target, mapper(params));
-
-        return new GitChangesMutationInterceptor(changelog);
+        GitChangeResolver gitChangeResolver = new GitChangeResolver();
+        List<CodeChange> changes = gitChangeResolver.resolve(repository, source, target)
+                .map(mapper(params))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
+        logChanges(changes);
+        return new GitChangesMutationInterceptor(new CodeChangelog(changes));
     }
 
     @Override
@@ -44,5 +56,15 @@ public class GitChangesMutationInterceptorFactory implements MutationInterceptor
         return new ToMutationClassPathClassNameFunction(
                 params.data().getClassPath().findClasses(params.data().getTargetClassesFilter())
         );
+    }
+
+    private void logChanges(List<CodeChange> changes) {
+        LOGGER.info("Found " + changes.size() + " changes ");
+
+        if (LOGGER.isLoggable(Level.FINE)) {
+            for (CodeChange change : changes) {
+                LOGGER.fine(change.toString());
+            }
+        }
     }
 }

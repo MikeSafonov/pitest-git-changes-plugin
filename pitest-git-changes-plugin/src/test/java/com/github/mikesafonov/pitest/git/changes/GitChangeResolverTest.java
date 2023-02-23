@@ -10,14 +10,14 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class CodeChangelogResolverTest {
+public class GitChangeResolverTest {
     @TempDir
     private File repository;
-    private final CodeChangelogResolver resolver = new CodeChangelogResolver();
+    private final GitChangeResolver resolver = new GitChangeResolver();
 
     @BeforeEach
     public void setUpRepository() {
@@ -41,7 +41,7 @@ public class CodeChangelogResolverTest {
     @SneakyThrows
     private void copyResource(String name, String repoFileName) {
         Files.copy(
-                new File(CodeChangelogResolverTest.class.getResource(name).getPath()).toPath(),
+                new File(GitChangeResolverTest.class.getResource(name).getPath()).toPath(),
                 repository.toPath().resolve(repoFileName),
                 StandardCopyOption.REPLACE_EXISTING
         );
@@ -56,16 +56,15 @@ public class CodeChangelogResolverTest {
 
     @Test
     void shouldReturnExpectedChanges() {
-        CodeChangelog changelog = resolver.resolve(repository.getPath() + "/.git", "change", "master", Optional::of);
-        assertTrue(changelog.isNotEmpty());
-        assertFalse(changelog.isEmpty());
+        List<GitChange> changes = resolver.resolve(repository.getPath() + "/.git", "change", "master").collect(Collectors.toList());
+        assertFalse(changes.isEmpty());
 
-        List<CodeChange> expected = new ArrayList<>();
-        expected.add(new CodeChange("MyClass", 4, 6));
-        expected.add(new CodeChange("MyClass", 8, 8));
-        expected.add(new CodeChange("NewClass", 1, 6));
+        List<GitChange> expected = new ArrayList<>();
+        expected.add(new GitChange("MyClass", 4, 6));
+        expected.add(new GitChange("MyClass", 8, 8));
+        expected.add(new GitChange("NewClass", 1, 6));
 
-        for (CodeChange codeChange : changelog) {
+        for (GitChange codeChange : changes) {
             assertTrue(expected.contains(codeChange));
         }
     }
