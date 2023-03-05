@@ -9,6 +9,6 @@ public class CodeChange {
     private final int lineTo;
 
     public boolean containsLine(int line) {
-        return lineFrom >= line && lineTo <= line;
+        return lineFrom <= line && lineTo >= line;
     }
 }
