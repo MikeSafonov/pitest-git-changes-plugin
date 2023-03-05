@@ -27,7 +27,7 @@ dependencies {
     val jgitVersion = "5.10.0.202012080955-r"
     implementation("org.eclipse.jgit:org.eclipse.jgit:$jgitVersion")
 
-    val pitestVersion = "1.11.1"
+    val pitestVersion = "1.11.4"
     implementation("org.pitest:pitest:$pitestVersion")
     implementation("org.pitest:pitest-entry:$pitestVersion")
     implementation("commons-io:commons-io:2.7")
