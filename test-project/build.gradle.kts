@@ -21,6 +21,7 @@ dependencies {
     val junitVersion = "5.8.1"
 
     pitest(project(":pitest-git-changes-plugin"))
+    pitest(project(":pitest-git-changes-report-github-plugin"))
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
@@ -36,7 +37,8 @@ pitest {
     features.set(listOf("+git-changes"))
     targetClasses.set(listOf("com.github.mikesafonov.test.*"))
     targetTests.set(listOf("com.github.mikesafonov.tests.*"))
-    outputFormats.set(listOf("XML", "HTML"))
+    outputFormats.set(listOf("XML", "HTML", "GITHUB"))
     junit5PluginVersion.set("1.1.2")
     timestampedReports.set(false)
+    pluginConfiguration.set(mapOf("SOME_TEST_VAR" to "aaa"))
 }
