@@ -3,13 +3,13 @@ package com.github.mikesafonov.pitest.git.changes;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
 
-import java.util.Collection;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 
 @RequiredArgsConstructor
 public class TargetClassToCodeChangeMappingFunction implements Function<GitChange, Optional<CodeChange>> {
-    private final Collection<String> targetClasses;
+    private final Set<String> targetClasses;
 
     @Override
     public Optional<CodeChange> apply(GitChange change) {

@@ -1,18 +1,22 @@
 package com.github.mikesafonov.pitest.git.changes;
 
 import org.eclipse.jgit.lib.Constants;
+import org.pitest.classpath.ClassPath;
 import org.pitest.mutationtest.build.InterceptorParameters;
 import org.pitest.mutationtest.build.MutationInterceptor;
 import org.pitest.mutationtest.build.MutationInterceptorFactory;
+import org.pitest.mutationtest.config.ReportOptions;
 import org.pitest.plugin.Feature;
 import org.pitest.plugin.FeatureParameter;
 import org.pitest.util.Log;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class GitChangesMutationInterceptorFactory implements MutationInterceptorFactory {
     private static final Logger LOGGER = Log.getLogger();
@@ -55,8 +59,18 @@ public class GitChangesMutationInterceptorFactory implements MutationInterceptor
 
     private static TargetClassToCodeChangeMappingFunction mapper(InterceptorParameters params) {
         return new TargetClassToCodeChangeMappingFunction(
-                params.data().getClassPath().findClasses(params.data().getTargetClassesFilter())
+                collectTargetClassesAndTests(params)
         );
+    }
+
+    private static Set<String> collectTargetClassesAndTests(InterceptorParameters params) {
+        ReportOptions data = params.data();
+        ClassPath classPath = data.getClassPath();
+        return Stream.concat(
+                        classPath.findClasses(data.getTargetClassesFilter()).stream(),
+                        classPath.findClasses(data.getTargetTestsFilter()).stream()
+                )
+                .collect(Collectors.toSet());
     }
 
     private void logChanges(List<CodeChange> changes) {

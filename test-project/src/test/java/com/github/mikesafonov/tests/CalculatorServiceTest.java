@@ -1,5 +1,6 @@
-package com.github.mikesafonov.test;
+package com.github.mikesafonov.tests;
 
+import com.github.mikesafonov.test.CalculatorService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
