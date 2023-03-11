@@ -1,6 +1,6 @@
-package com.github.mikesafonov.test;
+package com.github.mikesafonov.second;
 
-public class CalculatorService {
+public class TestService {
 
     public int calc(int a, int b) {
         int sum = a + b;

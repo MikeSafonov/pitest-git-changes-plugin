@@ -12,5 +12,9 @@ public class PRReport {
     private int killed;
     private int survived;
 
-    private Map<ClassName, List<PRMutant>> mutants;
+    private Map<MutatedClass, List<PRMutant>> mutants;
+
+    public boolean isFullyKilled() {
+        return total == killed;
+    }
 }

@@ -28,11 +28,15 @@ dependencies {
     implementation("org.pitest:pitest:$pitestVersion")
     implementation("org.pitest:pitest-entry:$pitestVersion")
 
+    implementation(project(":pitest-git"))
     implementation(project(":pitest-git-changes-report-plugin"))
 
     val lombokVersion = "1.18.26"
     compileOnly("org.projectlombok:lombok:$lombokVersion")
     annotationProcessor("org.projectlombok:lombok:$lombokVersion")
+
+    implementation("org.kohsuke:github-api:1.314")
+
 
     testCompileOnly("org.projectlombok:lombok:$lombokVersion")
     testAnnotationProcessor("org.projectlombok:lombok:$lombokVersion")

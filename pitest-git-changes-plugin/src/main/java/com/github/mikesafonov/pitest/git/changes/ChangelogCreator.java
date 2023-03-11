@@ -1,5 +1,6 @@
 package com.github.mikesafonov.pitest.git.changes;
 
+import com.github.mikesafonov.pitest.git.GitChangeResolver;
 import lombok.Value;
 import org.pitest.classpath.ClassPath;
 import org.pitest.mutationtest.build.InterceptorParameters;
