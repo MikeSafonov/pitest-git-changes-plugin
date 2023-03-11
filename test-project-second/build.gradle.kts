@@ -35,15 +35,15 @@ tasks.test {
 pitest {
     pitestVersion.set("1.11.1")
     features.set(listOf("+git-changes(target[HEAD^])"))
-    targetClasses.set(listOf("com.github.mikesafonov.test.*"))
-    targetTests.set(listOf("com.github.mikesafonov.tests.*"))
+    targetClasses.set(listOf("com.github.mikesafonov.second.*"))
+    targetTests.set(listOf("com.github.mikesafonov.second.*"))
     outputFormats.set(listOf("XML", "HTML", "GITHUB"))
     junit5PluginVersion.set("1.1.2")
     timestampedReports.set(false)
     if(System.getenv("CI").toBoolean()) {
         pluginConfiguration.set(
                 mapOf(
-                        "PROJECT_NAME" to "test-project",
+                        "PROJECT_NAME" to "test-project-second",
                         "GITHUB_TOKEN" to System.getenv("GITHUB_TOKEN"),
                         "GITHUB_REPOSITORY_ID" to System.getenv("GITHUB_REPOSITORY_ID"),
                         "GITHUB_EVENT_PATH" to System.getenv("GITHUB_EVENT_PATH"),

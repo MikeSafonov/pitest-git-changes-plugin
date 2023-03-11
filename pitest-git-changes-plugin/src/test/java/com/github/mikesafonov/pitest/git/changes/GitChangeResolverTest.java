@@ -1,5 +1,7 @@
 package com.github.mikesafonov.pitest.git.changes;
 
+import com.github.mikesafonov.pitest.git.GitChange;
+import com.github.mikesafonov.pitest.git.GitChangeResolver;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

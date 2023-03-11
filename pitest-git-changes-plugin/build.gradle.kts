@@ -24,8 +24,7 @@ java {
 }
 
 dependencies {
-    val jgitVersion = "5.10.0.202012080955-r"
-    implementation("org.eclipse.jgit:org.eclipse.jgit:$jgitVersion")
+    implementation(project(":pitest-git"))
 
     val pitestVersion = project.properties["pitestVersion"]!!
     implementation("org.pitest:pitest:$pitestVersion")

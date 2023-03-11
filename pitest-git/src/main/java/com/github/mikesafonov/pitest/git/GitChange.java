@@ -1,4 +1,4 @@
-package com.github.mikesafonov.pitest.git.changes;
+package com.github.mikesafonov.pitest.git;
 
 import lombok.Value;
 

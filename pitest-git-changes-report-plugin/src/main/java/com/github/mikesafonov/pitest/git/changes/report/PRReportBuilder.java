@@ -1,7 +1,5 @@
 package com.github.mikesafonov.pitest.git.changes.report;
 
-import org.pitest.classinfo.ClassName;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,20 +10,32 @@ public class PRReportBuilder {
     private int killed = 0;
     private int survived = 0;
 
-    private final Map<ClassName, List<PRMutant>> mutants = new HashMap<>();
+    private final Map<MutatedClass, List<PRMutant>> mutants = new HashMap<>();
 
-    public PRReportBuilder killed() {
+    public PRReportBuilder add(MutatedClass mutatedClass, PRMutant mutant) {
+        if(mutant.isSurvived()) {
+            return survived(mutatedClass, mutant);
+        } else {
+            return killed(mutatedClass, mutant);
+        }
+    }
+
+    public PRReportBuilder killed(MutatedClass mutatedClass, PRMutant mutant) {
         total++;
         killed++;
+        storeMutant(mutatedClass, mutant);
         return this;
     }
 
-    public PRReportBuilder survived(ClassName className, PRMutant mutant) {
+    public PRReportBuilder survived(MutatedClass mutatedClass, PRMutant mutant) {
         total++;
         survived++;
-        mutants.computeIfAbsent(className, c -> new ArrayList<>());
-        mutants.get(className).add(mutant);
+        storeMutant(mutatedClass, mutant);
         return this;
+    }
+
+    private void storeMutant(MutatedClass mutatedClass, PRMutant mutant) {
+        mutants.computeIfAbsent(mutatedClass, c -> new ArrayList<>()).add(mutant);
     }
 
     public PRReport build() {
