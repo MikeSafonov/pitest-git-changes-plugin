@@ -1,4 +1,4 @@
-package com.github.mikesafonov.pitest.git.changes;
+package com.github.mikesafonov.pitest.git;
 
 import lombok.SneakyThrows;
 import org.eclipse.jgit.diff.DiffEntry;
@@ -11,16 +11,13 @@ import org.eclipse.jgit.patch.FileHeader;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
-import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.FileTreeIterator;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
 import org.pitest.util.Log;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -28,8 +25,10 @@ import java.util.stream.Stream;
 public class GitChangeResolver {
     private static final Logger LOGGER = Log.getLogger();
 
+    private final GitRootPathResolver gitRootPathResolver = new GitRootPathResolver();
+
     public Stream<GitChange> resolve(String repositoryPath, String source, String target) {
-        try (Repository repo = findRepository(repositoryPath);
+        try (Repository repo = gitRootPathResolver.resolveRepository(repositoryPath);
              RevWalk rw = new RevWalk(repo);
              DiffFormatter formatter = createFormatter(repo)) {
             LOGGER.info("Resolving code changes between " + ((source == null) ? "local" : source) + " and " + target + " branches");
@@ -44,22 +43,6 @@ public class GitChangeResolver {
             LOGGER.log(Level.SEVERE, e, e::getMessage);
             return Stream.empty();
         }
-    }
-
-    @SneakyThrows
-    private Repository findRepository(String path) {
-        return new FileRepositoryBuilder()
-                .setGitDir((path == null) ? null : new File(toGitPath(path)))
-                .readEnvironment()
-                .findGitDir()
-                .build();
-    }
-
-    private String toGitPath(String path) {
-        if (path.endsWith(".git"))
-            return path;
-        else
-            return Paths.get(path).resolve(".git").toString();
     }
 
     private AbstractTreeIterator sourceTreeIterator(String source, RevWalk rw, Repository repo) {

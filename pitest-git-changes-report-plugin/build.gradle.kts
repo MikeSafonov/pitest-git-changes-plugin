@@ -25,6 +25,7 @@ dependencies {
     val pitestVersion = project.properties["pitestVersion"]!!
     implementation("org.pitest:pitest:$pitestVersion")
     implementation("org.pitest:pitest-entry:$pitestVersion")
+    implementation("commons-io:commons-io:2.7")
 
     val lombokVersion = "1.18.26"
     compileOnly("org.projectlombok:lombok:$lombokVersion")
