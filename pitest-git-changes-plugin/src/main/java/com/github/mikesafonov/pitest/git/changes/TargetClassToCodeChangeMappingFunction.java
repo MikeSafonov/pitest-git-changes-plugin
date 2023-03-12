@@ -1,5 +1,6 @@
 package com.github.mikesafonov.pitest.git.changes;
 
+import com.github.mikesafonov.pitest.git.GitChange;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
 
