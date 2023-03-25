@@ -57,9 +57,9 @@ publishing {
         create<MavenPublication>("mavenJava") {
             from(components["java"])
             pom {
-                name.set("pitest-git-changes-plugin")
+                name.set("pitest-git-changes-report-github-plugin")
                 url.set("https://github.com/MikeSafonov/pitest-git-changes-plugin")
-                description.set("Pitest plugin for mutating git changes")
+                description.set("Pitest plugin for publishing mutation report to Github PR")
                 organization {
                     name.set("com.github.mikesafonov")
                     url.set("https://github.com/MikeSafonov")
