@@ -28,6 +28,8 @@ dependencies {
     implementation(libs.pitest.entry)
     implementation(libs.commons.io)
 
+    implementation(project(":pitest-git"))
+
     compileOnly(libs.lombok)
     annotationProcessor(libs.lombok)
     testCompileOnly(libs.lombok)

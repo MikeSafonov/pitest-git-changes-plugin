@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.mikesafonov.pitest.git.changes.report.PRMutationResultListenerFactory;
 import com.github.mikesafonov.pitest.git.changes.report.ReportWriter;
+import com.github.mikesafonov.pitest.git.changes.report.SourcePathResolver;
 import lombok.SneakyThrows;
 import org.kohsuke.github.GHCheckRun;
 import org.pitest.mutationtest.ListenerArguments;
@@ -36,7 +37,7 @@ public class GithubPRMutationResultListenerFactory extends PRMutationResultListe
                         Long.parseLong(repoId),
                         pullRequestId,
                         sha,
-                        new GithubSourcePathResolver(args.data().getSourcePaths()),
+                        new SourcePathResolver(args.data().getSourcePaths()),
                         props.getProperty("PROJECT_NAME"),
                         survivedLevel,
                         failIfMutantsPresent

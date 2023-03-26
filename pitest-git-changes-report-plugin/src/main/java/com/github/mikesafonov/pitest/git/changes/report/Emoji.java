@@ -1,4 +1,4 @@
-package com.github.mikesafonov.pitest.git.changes.report.github;
+package com.github.mikesafonov.pitest.git.changes.report;
 
 public class Emoji {
     public static final String EYES_EMOJI = "\uD83D\uDC40";

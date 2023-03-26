@@ -1,15 +1,11 @@
-package com.github.mikesafonov.pitest.git.changes.report.github;
-
-import com.github.mikesafonov.pitest.git.changes.report.MutatedClass;
-import com.github.mikesafonov.pitest.git.changes.report.PRMutant;
-import com.github.mikesafonov.pitest.git.changes.report.PRReport;
+package com.github.mikesafonov.pitest.git.changes.report;
 
 import java.util.List;
 import java.util.Map;
 
-import static com.github.mikesafonov.pitest.git.changes.report.github.Emoji.*;
+import static com.github.mikesafonov.pitest.git.changes.report.Emoji.*;
 
-public class GithubMessageCreator {
+public class SummaryMessageCreator {
 
     public String create(PRReport report, String projectName) {
         if (report.getTotal() == 0) {
