@@ -24,16 +24,13 @@ java {
 }
 
 dependencies {
-    val jgitVersion = "5.10.0.202012080955-r"
-    api("org.eclipse.jgit:org.eclipse.jgit:$jgitVersion")
+    api(libs.jgit)
 
-    val pitestVersion = project.properties["pitestVersion"]!!
-    implementation("org.pitest:pitest:$pitestVersion")
-    implementation("org.pitest:pitest-entry:$pitestVersion")
+    implementation(libs.pitest.core)
+    implementation(libs.pitest.entry)
 
-    val lombokVersion = "1.18.26"
-    compileOnly("org.projectlombok:lombok:$lombokVersion")
-    annotationProcessor("org.projectlombok:lombok:$lombokVersion")
+    compileOnly(libs.lombok)
+    annotationProcessor(libs.lombok)
 }
 
 publishing {
