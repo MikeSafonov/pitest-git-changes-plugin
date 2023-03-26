@@ -26,23 +26,18 @@ java {
 dependencies {
     implementation(project(":pitest-git"))
 
-    val pitestVersion = project.properties["pitestVersion"]!!
-    implementation("org.pitest:pitest:$pitestVersion")
-    implementation("org.pitest:pitest-entry:$pitestVersion")
-    implementation("commons-io:commons-io:2.7")
+    implementation(libs.pitest.core)
+    implementation(libs.pitest.entry)
+    implementation(libs.commons.io)
 
-    val lombokVersion = "1.18.26"
-    compileOnly("org.projectlombok:lombok:$lombokVersion")
-    annotationProcessor("org.projectlombok:lombok:$lombokVersion")
+    compileOnly(libs.lombok)
+    annotationProcessor(libs.lombok)
+    testCompileOnly(libs.lombok)
+    testAnnotationProcessor(libs.lombok)
 
-    testCompileOnly("org.projectlombok:lombok:$lombokVersion")
-    testAnnotationProcessor("org.projectlombok:lombok:$lombokVersion")
-
-    val junitVersion = "5.8.1"
-
-    testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
-    testImplementation("ch.qos.logback:logback-classic:1.3.3")
+    testImplementation(libs.junit.api)
+    testRuntimeOnly(libs.junit.engine)
+    testImplementation(libs.logback)
 }
 
 tasks.test {
