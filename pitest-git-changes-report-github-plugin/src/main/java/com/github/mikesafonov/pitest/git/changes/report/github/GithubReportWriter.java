@@ -1,9 +1,6 @@
 package com.github.mikesafonov.pitest.git.changes.report.github;
 
-import com.github.mikesafonov.pitest.git.changes.report.MutatedClass;
-import com.github.mikesafonov.pitest.git.changes.report.PRMutant;
-import com.github.mikesafonov.pitest.git.changes.report.PRReport;
-import com.github.mikesafonov.pitest.git.changes.report.ReportWriter;
+import com.github.mikesafonov.pitest.git.changes.report.*;
 import lombok.SneakyThrows;
 import lombok.Value;
 import org.kohsuke.github.*;
@@ -14,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import static com.github.mikesafonov.pitest.git.changes.report.github.Emoji.GOOD_EMOJI;
+import static com.github.mikesafonov.pitest.git.changes.report.Emoji.GOOD_EMOJI;
 
 @Value
 public class GithubReportWriter implements ReportWriter {
@@ -24,12 +21,12 @@ public class GithubReportWriter implements ReportWriter {
     private long repoId;
     private int prId;
     private String sha;
-    private GithubSourcePathResolver pathResolver;
+    private SourcePathResolver pathResolver;
     private String projectName;
     private GHCheckRun.AnnotationLevel survivedLevel;
     private boolean failIfMutantsPresent;
 
-    private final GithubMessageCreator messageCreator = new GithubMessageCreator();
+    private final SummaryMessageCreator messageCreator = new SummaryMessageCreator();
 
     @Override
     @SneakyThrows

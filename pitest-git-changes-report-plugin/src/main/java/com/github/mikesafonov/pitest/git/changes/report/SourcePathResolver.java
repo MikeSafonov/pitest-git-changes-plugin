@@ -1,4 +1,4 @@
-package com.github.mikesafonov.pitest.git.changes.report.github;
+package com.github.mikesafonov.pitest.git.changes.report;
 
 import com.github.mikesafonov.pitest.git.GitRootPathResolver;
 import org.pitest.util.Log;
@@ -9,17 +9,17 @@ import java.util.Collection;
 import java.util.List;
 import java.util.logging.Logger;
 
-public class GithubSourcePathResolver {
+public class SourcePathResolver {
     private static final Logger LOGGER = Log.getLogger();
     private final Path gitRoot;
     private final List<Path> sourcePaths;
 
-    public GithubSourcePathResolver(Path gitRoot, Collection<Path> originalSourcePaths) {
+    public SourcePathResolver(Path gitRoot, Collection<Path> originalSourcePaths) {
         this.gitRoot = gitRoot;
         this.sourcePaths = new ArrayList<>(originalSourcePaths);
     }
 
-    public GithubSourcePathResolver(Collection<Path> originalSourcePaths) {
+    public SourcePathResolver(Collection<Path> originalSourcePaths) {
         this(new GitRootPathResolver().resolve().getParent(), originalSourcePaths);
     }
 
