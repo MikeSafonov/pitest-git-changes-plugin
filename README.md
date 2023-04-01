@@ -5,7 +5,7 @@
 Add plugin to `pitest` dependency:
 
 ```
-pitest("com.github.mikesafonov:pitest-git-changes-plugin:0.0.2")
+pitest("com.github.mikesafonov:pitest-git-changes-plugin:0.0.3")
 ```
 
 ### Analyze uncommitted changes
@@ -71,8 +71,8 @@ Setup `pitest-git-changes-plugin` and `pitest-git-changes-report-github-plugin` 
 
 ```
 dependecies {
-    pitest("com.github.mikesafonov:pitest-git-changes-plugin:0.0.2")
-    pitest("com.github.mikesafonov:pitest-git-changes-report-github-plugin:0.0.2")
+    pitest("com.github.mikesafonov:pitest-git-changes-plugin:0.0.3")
+    pitest("com.github.mikesafonov:pitest-git-changes-report-github-plugin:0.0.3")
 }
 
 pitest {
@@ -99,3 +99,50 @@ Possible values of `GITHUB_MUTANT_LEVEL` :
 - NOTICE
 - WARNING
 - FAILURE (default value)
+
+## Mutation report using Gitlab
+
+### Create API token
+
+Create personal or organization token with `api` permission and store to CI (`Settings`->`CI/CD`->`Variables`)
+(for example as `GITLAB_TOKEN`)
+
+### Configure .gitlab-ci.yml
+
+```
+pitest:
+  stage: test
+  script: gradle pitest
+```
+
+### Configure project
+
+Setup `pitest-git-changes-plugin` and `pitest-git-changes-report-gitlab-plugin` plugins
+
+```
+dependecies {
+    pitest("com.github.mikesafonov:pitest-git-changes-plugin:0.0.3")
+    pitest("com.github.mikesafonov:pitest-git-changes-report-gitlab-plugin:0.0.3")
+}
+
+pitest {
+    ...
+    features.set(listOf("+git-changes(target[HEAD^])"))
+    outputFormats.set(listOf("GITLAB"))
+    if(System.getenv("CI").toBoolean()) {
+        pluginConfiguration.set(
+                mapOf(
+                        "PROJECT_NAME" to "test-project",
+                        "GITLAB_TOKEN" to System.getenv("GITLAB_TOKEN"),
+                        "GITLAB_PROJECT_ID" to System.getenv("CI_PROJECT_ID"),
+                        "GITLAB_URL" to System.getenv("CI_SERVER_URL"),
+                        "GITLAB_MR_ID" to System.getenv("CI_OPEN_MERGE_REQUESTS")
+                )
+        )
+    }
+}
+```
+
+### Example
+
+[See pitest-changes-example](https://gitlab.com/msafonovmail/pitest-changes-example)
