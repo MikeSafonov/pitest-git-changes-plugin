@@ -1,5 +1,5 @@
 [versions]
-pitest = "1.11.6"
+pitest = "1.11.7"
 lombok = "1.18.26"
 junit = "5.8.1"
 logback = "1.3.3"
