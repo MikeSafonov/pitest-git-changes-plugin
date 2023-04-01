@@ -5,7 +5,7 @@
 Add plugin to `pitest` dependency:
 
 ```
-pitest("com.github.mikesafonov:pitest-git-changes-plugin:0.0.3")
+pitest("com.github.mikesafonov:pitest-git-changes-plugin:0.0.4")
 ```
 
 ### Analyze uncommitted changes
@@ -71,8 +71,8 @@ Setup `pitest-git-changes-plugin` and `pitest-git-changes-report-github-plugin` 
 
 ```
 dependecies {
-    pitest("com.github.mikesafonov:pitest-git-changes-plugin:0.0.3")
-    pitest("com.github.mikesafonov:pitest-git-changes-report-github-plugin:0.0.3")
+    pitest("com.github.mikesafonov:pitest-git-changes-plugin:0.0.4")
+    pitest("com.github.mikesafonov:pitest-git-changes-report-github-plugin:0.0.4")
 }
 
 pitest {
@@ -125,8 +125,8 @@ Setup `pitest-git-changes-plugin` and `pitest-git-changes-report-gitlab-plugin` 
 
 ```
 dependecies {
-    pitest("com.github.mikesafonov:pitest-git-changes-plugin:0.0.3")
-    pitest("com.github.mikesafonov:pitest-git-changes-report-gitlab-plugin:0.0.3")
+    pitest("com.github.mikesafonov:pitest-git-changes-plugin:0.0.4")
+    pitest("com.github.mikesafonov:pitest-git-changes-report-gitlab-plugin:0.0.4")
 }
 
 pitest {
