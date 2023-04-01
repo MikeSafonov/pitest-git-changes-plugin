@@ -14,11 +14,11 @@ public class SummaryMessageCreator {
         String header = (projectName == null) ? "Pitest mutation report summary." :
                 String.format("Pitest mutation report summary for project **%s**", projectName);
         StringBuilder builder = new StringBuilder(header)
-                .append("\n`Total mutants:` ")
+                .append("\n\n`Total mutants:` ")
                 .append(report.getTotal())
-                .append("\n`Killed mutants:` ")
+                .append("\n\n`Killed mutants:` ")
                 .append(report.getKilled())
-                .append("\n`Survived mutants:` ")
+                .append("\n\n`Survived mutants:` ")
                 .append(report.getSurvived());
         builder.append("\n| Class  | Survived | Killed |");
         builder.append("\n| ------------- | ------------- | ------------- |");
