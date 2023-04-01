@@ -100,6 +100,10 @@ Possible values of `GITHUB_MUTANT_LEVEL` :
 - WARNING
 - FAILURE (default value)
 
+### Example
+
+[pitest-git-changes-plugin-example](https://github.com/MikeSafonov/pitest-git-changes-plugin-example) and [PR](https://github.com/MikeSafonov/pitest-git-changes-plugin-example/pull/1)
+
 ## Mutation report using Gitlab
 
 ### Create API token
@@ -145,4 +149,4 @@ pitest {
 
 ### Example
 
-[See pitest-changes-example](https://gitlab.com/msafonovmail/pitest-changes-example)
+[pitest-changes-example](https://gitlab.com/msafonovmail/pitest-changes-example) and [MR](https://gitlab.com/msafonovmail/pitest-changes-example/-/merge_requests/4)
