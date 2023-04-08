@@ -18,9 +18,4 @@ subprojects { project->
     initializeSonatypeStagingRepository {
         shouldRunAfter(tasks.withType(Sign))
     }
-
-    dependencies {
-        pitest("com.github.mikesafonov:pitest-git-changes-plugin:0.0.4")
-        pitest("com.github.mikesafonov:pitest-git-changes-report-github-plugin:0.0.4")
-    }
 }
