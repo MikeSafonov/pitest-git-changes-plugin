@@ -7,6 +7,7 @@ commons-io = "2.7"
 github-api = "1.314"
 jgit = "5.10.0.202012080955-r"
 gitlab = "5.0.1"
+mockito = "4.11.0"
 
 
 [libraries]
@@ -20,3 +21,5 @@ logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 commons-io = { module = "commons-io:commons-io", version.ref = "commons-io" }
 github = { module = "org.kohsuke:github-api", version.ref = "github-api" }
 gitlab = { module = "org.gitlab4j:gitlab4j-api", version.ref = "gitlab" }
+mockito = { module = "org.mockito:mockito-core", version.ref = "mockito"}
+

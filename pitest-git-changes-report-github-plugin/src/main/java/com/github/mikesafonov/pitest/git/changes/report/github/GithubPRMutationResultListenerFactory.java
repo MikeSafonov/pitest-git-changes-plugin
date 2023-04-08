@@ -37,7 +37,7 @@ public class GithubPRMutationResultListenerFactory extends PRMutationResultListe
                         Long.parseLong(repoId),
                         pullRequestId,
                         sha,
-                        new SourcePathResolver(args.data().getSourcePaths()),
+                        SourcePathResolver.withGitResolver(args.data().getSourcePaths()),
                         props.getProperty("PROJECT_NAME"),
                         survivedLevel,
                         failIfMutantsPresent

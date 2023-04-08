@@ -1,5 +1,6 @@
 plugins {
     id "io.github.gradle-nexus.publish-plugin" version "1.3.0"
+    id("info.solidsoft.pitest") version "1.9.11"
 }
 
 group = "com.github.mikesafonov"
@@ -11,8 +12,15 @@ nexusPublishing {
     }
 }
 
-subprojects {
+subprojects { project->
+    apply plugin: 'info.solidsoft.pitest'
+
     initializeSonatypeStagingRepository {
         shouldRunAfter(tasks.withType(Sign))
+    }
+
+    dependencies {
+        pitest("com.github.mikesafonov:pitest-git-changes-plugin:0.0.4")
+        pitest("com.github.mikesafonov:pitest-git-changes-report-github-plugin:0.0.4")
     }
 }

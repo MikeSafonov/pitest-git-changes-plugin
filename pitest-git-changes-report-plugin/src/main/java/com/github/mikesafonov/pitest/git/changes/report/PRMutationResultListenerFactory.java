@@ -10,7 +10,10 @@ import java.util.Properties;
 public abstract class PRMutationResultListenerFactory implements MutationResultListenerFactory {
     @Override
     public MutationResultListener getListener(Properties props, ListenerArguments args) {
-        return new PRMutationResultListener(getWriter(props, args).orElseGet(NoopReportWriter::new));
+        return new PRMutationResultListener(
+                getWriter(props, args).orElseGet(NoopReportWriter::new),
+                new PRReportBuilder()
+        );
     }
 
     protected abstract Optional<ReportWriter> getWriter(Properties props, ListenerArguments args);

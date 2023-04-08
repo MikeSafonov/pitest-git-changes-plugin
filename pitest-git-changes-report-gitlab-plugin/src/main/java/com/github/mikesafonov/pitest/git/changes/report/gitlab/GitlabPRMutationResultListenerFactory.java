@@ -28,7 +28,7 @@ public class GitlabPRMutationResultListenerFactory extends PRMutationResultListe
                             token,
                             projectId,
                             mrId,
-                            new SourcePathResolver(args.data().getSourcePaths()),
+                            SourcePathResolver.withGitResolver(args.data().getSourcePaths()),
                             projectName
                     )
             );

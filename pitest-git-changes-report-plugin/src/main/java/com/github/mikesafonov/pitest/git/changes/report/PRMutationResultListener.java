@@ -14,7 +14,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PRMutationResultListener implements MutationResultListener {
     private final ReportWriter writer;
-    private final PRReportBuilder reportBuilder = new PRReportBuilder();
+    private final PRReportBuilder reportBuilder;
 
     @Override
     public void runStart() {

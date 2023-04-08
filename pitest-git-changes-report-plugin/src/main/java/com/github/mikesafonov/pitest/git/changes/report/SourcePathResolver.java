@@ -19,8 +19,11 @@ public class SourcePathResolver {
         this.sourcePaths = new ArrayList<>(originalSourcePaths);
     }
 
-    public SourcePathResolver(Collection<Path> originalSourcePaths) {
-        this(new GitRootPathResolver().resolve().getParent(), originalSourcePaths);
+    public static SourcePathResolver withGitResolver(Collection<Path> originalSourcePaths) {
+        return new SourcePathResolver(
+                new GitRootPathResolver().resolve().getParent(),
+                originalSourcePaths
+        );
     }
 
     public String getPath(String name) {

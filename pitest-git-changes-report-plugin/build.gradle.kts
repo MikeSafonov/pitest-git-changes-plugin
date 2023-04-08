@@ -38,6 +38,7 @@ dependencies {
     testImplementation(libs.junit.api)
     testRuntimeOnly(libs.junit.engine)
     testImplementation(libs.logback)
+    testImplementation(libs.mockito)
 }
 
 tasks.test {
@@ -86,4 +87,24 @@ publishing {
 
 signing {
     sign(publishing.publications["mavenJava"])
+}
+
+pitest {
+    pitestVersion.set("1.11.7")
+    junit5PluginVersion.set("1.1.2")
+    timestampedReports.set(false)
+    features.set(listOf("+git-changes(target[HEAD^])"))
+    outputFormats.set(listOf("GITHUB", "HTML"))
+    if(System.getenv("CI").toBoolean()) {
+        pluginConfiguration.set(
+                mapOf(
+                        "PROJECT_NAME" to project.name,
+                        "GITHUB_TOKEN" to System.getenv("GITHUB_TOKEN"),
+                        "GITHUB_REPOSITORY_ID" to System.getenv("GITHUB_REPOSITORY_ID"),
+                        "GITHUB_EVENT_PATH" to System.getenv("GITHUB_EVENT_PATH"),
+                        "GITHUB_MUTANT_LEVEL" to "WARNING",
+                        "GITHUB_FAIL_IF_MUTANTS_PRESENT" to "false"
+                )
+        )
+    }
 }
