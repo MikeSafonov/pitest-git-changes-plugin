@@ -11,4 +11,9 @@ public class NoopReportWriter implements ReportWriter {
     public void write(PRReport report) {
         LOGGER.info("Noop PR report");
     }
+
+    @Override
+    public void close() {
+
+    }
 }

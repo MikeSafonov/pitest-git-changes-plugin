@@ -2,49 +2,77 @@ package com.github.mikesafonov.pitest.git.changes.report.github;
 
 import com.github.mikesafonov.pitest.git.changes.report.*;
 import lombok.SneakyThrows;
-import lombok.Value;
 import org.kohsuke.github.*;
-import org.pitest.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import static com.github.mikesafonov.pitest.git.changes.report.Emoji.GOOD_EMOJI;
 
-@Value
 public class GithubReportWriter implements ReportWriter {
-    private static final Logger LOGGER = Log.getLogger();
     private static final String PITEST_CHECKS_NAME = "pitest-checks";
-    private String token;
-    private long repoId;
-    private int prId;
-    private String sha;
-    private SourcePathResolver pathResolver;
-    private String projectName;
-    private GHCheckRun.AnnotationLevel survivedLevel;
-    private boolean failIfMutantsPresent;
+    private final GHRepository repository;
+    private final int prId;
+    private final String sha;
+    private final SourcePathResolver pathResolver;
+    private final String projectName;
+    private final GHCheckRun.AnnotationLevel survivedLevel;
+    private final boolean failIfMutantsPresent;
 
-    private final SummaryMessageCreator messageCreator = new SummaryMessageCreator();
+    private final SummaryMessageCreator messageCreator;
+
+    @SneakyThrows
+    public GithubReportWriter(String token,
+                              long repoId,
+                              int prId,
+                              String sha,
+                              SourcePathResolver pathResolver,
+                              String projectName,
+                              GHCheckRun.AnnotationLevel survivedLevel,
+                              boolean failIfMutantsPresent) {
+        this(
+                GitHub.connectUsingOAuth(token).getRepositoryById(repoId),
+                prId,
+                sha,
+                pathResolver,
+                projectName,
+                survivedLevel,
+                failIfMutantsPresent,
+                new SummaryMessageCreator()
+        );
+    }
+
+    public GithubReportWriter(GHRepository repository,
+                              int prId,
+                              String sha,
+                              SourcePathResolver pathResolver,
+                              String projectName,
+                              GHCheckRun.AnnotationLevel survivedLevel,
+                              boolean failIfMutantsPresent,
+                              SummaryMessageCreator summaryMessageCreator) {
+        this.repository = repository;
+        this.prId = prId;
+        this.sha = sha;
+        this.pathResolver = pathResolver;
+        this.projectName = projectName;
+        this.survivedLevel = survivedLevel;
+        this.failIfMutantsPresent = failIfMutantsPresent;
+        this.messageCreator = summaryMessageCreator;
+    }
+
 
     @Override
     @SneakyThrows
     public void write(PRReport report) {
-        GHRepository repository = getRepository();
         String summary = messageCreator.create(report, projectName);
         GHPullRequest pullRequest = repository.getPullRequest(prId);
         pullRequest.comment(summary);
-        publishChecks(repository, report, summary);
+        publishChecks(report, summary);
     }
 
     @SneakyThrows
-    private GHRepository getRepository() {
-        return GitHub.connectUsingOAuth(token).getRepositoryById(repoId);
-    }
-
-    @SneakyThrows
-    private void publishChecks(GHRepository repository, PRReport report, String summary) {
+    private void publishChecks(PRReport report, String summary) {
         GHCheckRunBuilder checkRunBuilder = repository.createCheckRun(createCheckName(), sha)
                 .withStatus(GHCheckRun.Status.COMPLETED);
         List<GHCheckRunBuilder.Annotation> annotations = createAnnotations(report);
@@ -64,7 +92,7 @@ public class GithubReportWriter implements ReportWriter {
     private List<GHCheckRunBuilder.Annotation> createAnnotations(PRReport report) {
         List<GHCheckRunBuilder.Annotation> annotations = new ArrayList<>();
         for (Map.Entry<MutatedClass, List<PRMutant>> entry : report.getMutants().entrySet()) {
-            String classPath = getPath(entry.getKey());
+            String classPath = pathResolver.getPath(entry.getKey());
             entry.getValue().stream()
                     .map(mutant -> createAnnotation(classPath, mutant))
                     .forEach(annotations::add);
@@ -90,17 +118,15 @@ public class GithubReportWriter implements ReportWriter {
         ).withTitle(title);
     }
 
-    private String getPath(MutatedClass mutatedClass) {
-        String name = mutatedClass.toRealName();
-        String path = pathResolver.getPath(name);
-        LOGGER.fine("resolved path of " + name + " path = " + path);
-        return (path == null) ? name : path;
-    }
-
     private GHCheckRun.Conclusion getConclusion(PRReport report) {
         if (report.isFullyKilled() || !failIfMutantsPresent) {
             return GHCheckRun.Conclusion.SUCCESS;
         }
         return GHCheckRun.Conclusion.FAILURE;
+    }
+
+    @Override
+    public void close() {
+
     }
 }

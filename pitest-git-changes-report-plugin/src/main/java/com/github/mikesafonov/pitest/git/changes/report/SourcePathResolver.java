@@ -26,6 +26,13 @@ public class SourcePathResolver {
         );
     }
 
+    public String getPath(MutatedClass mutatedClass) {
+        String name = mutatedClass.toRealName();
+        String path = getPath(name);
+        LOGGER.fine("resolved path of " + name + " path = " + path);
+        return (path == null) ? name : path;
+    }
+
     public String getPath(String name) {
         LOGGER.fine("git root path " + gitRoot.toString());
         for (Path sourcePath : sourcePaths) {

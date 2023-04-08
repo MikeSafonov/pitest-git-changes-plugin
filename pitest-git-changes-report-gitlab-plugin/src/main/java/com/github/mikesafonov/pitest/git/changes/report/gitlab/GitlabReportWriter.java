@@ -2,50 +2,91 @@ package com.github.mikesafonov.pitest.git.changes.report.gitlab;
 
 import com.github.mikesafonov.pitest.git.changes.report.*;
 import lombok.SneakyThrows;
-import lombok.Value;
 import org.gitlab4j.api.DiscussionsApi;
 import org.gitlab4j.api.GitLabApi;
 import org.gitlab4j.api.GitLabApiException;
 import org.gitlab4j.api.MergeRequestApi;
 import org.gitlab4j.api.models.*;
-import org.pitest.util.Log;
 
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-@Value
 public class GitlabReportWriter implements ReportWriter {
-    private static final Logger LOGGER = Log.getLogger();
-
     private static final String PITEST_REPORT_TAG_PREFIX = "### PITEST REPORT";
 
-    private final String gitlabHost;
-    private final String token;
+    private final GitLabApi gitLabApi;
     private final String projectId;
     private final Long mergeRequestId;
 
-    private final SourcePathResolver pathResolver;
+    private final PositionCreator positionCreator;
 
     private final String projectName;
 
-    private final SummaryMessageCreator messageCreator = new SummaryMessageCreator();
+    private final SummaryMessageCreator messageCreator;
+
+    public GitlabReportWriter(
+            String gitlabHost,
+            String token,
+            String projectId,
+            Long mergeRequestId,
+            SourcePathResolver pathResolver,
+            String projectName
+    ) {
+        this(
+                new GitLabApi(gitlabHost, token),
+                projectId,
+                mergeRequestId,
+                pathResolver,
+                projectName,
+                new SummaryMessageCreator()
+        );
+    }
+
+    public GitlabReportWriter(
+            GitLabApi gitLabApi,
+            String projectId,
+            Long mergeRequestId,
+            SourcePathResolver pathResolver,
+            String projectName,
+            SummaryMessageCreator messageCreator
+    ) {
+        this.gitLabApi = gitLabApi;
+        this.projectId = projectId;
+        this.mergeRequestId = mergeRequestId;
+        this.positionCreator = new PositionCreator(pathResolver);
+        this.projectName = projectName;
+        this.messageCreator = messageCreator;
+    }
+
+    public GitlabReportWriter(
+            GitLabApi gitLabApi,
+            String projectId,
+            Long mergeRequestId,
+            PositionCreator positionCreator,
+            String projectName,
+            SummaryMessageCreator messageCreator
+    ) {
+        this.gitLabApi = gitLabApi;
+        this.projectId = projectId;
+        this.mergeRequestId = mergeRequestId;
+        this.positionCreator = positionCreator;
+        this.projectName = projectName;
+        this.messageCreator = messageCreator;
+    }
 
     @Override
     @SneakyThrows
     public void write(PRReport report) {
-        try (GitLabApi gitLabApi = new GitLabApi(gitlabHost, token)) {
-            String summary = messageCreator.create(report, projectName);
-            gitLabApi.getNotesApi().createMergeRequestNote(projectId, mergeRequestId, summary);
-            DiscussionsApi discussionsApi = gitLabApi.getDiscussionsApi();
-            resolvePreviousDiscussions(discussionsApi);
-            if (report.getSurvived() > 0) {
-                MergeRequestApi mergeRequestApi = gitLabApi.getMergeRequestApi();
-                MergeRequest mergeRequest = mergeRequestApi.getMergeRequest(projectId, mergeRequestId);
-                DiffRef diffRefs = mergeRequest.getDiffRefs();
-                createDiscussions(report, diffRefs, discussionsApi);
-            }
+        String summary = messageCreator.create(report, projectName);
+        gitLabApi.getNotesApi().createMergeRequestNote(projectId, mergeRequestId, summary);
+        DiscussionsApi discussionsApi = gitLabApi.getDiscussionsApi();
+        resolvePreviousDiscussions(discussionsApi);
+        if (report.getSurvived() > 0) {
+            MergeRequestApi mergeRequestApi = gitLabApi.getMergeRequestApi();
+            MergeRequest mergeRequest = mergeRequestApi.getMergeRequest(projectId, mergeRequestId);
+            DiffRef diffRefs = mergeRequest.getDiffRefs();
+            createDiscussions(report, diffRefs, discussionsApi);
         }
     }
 
@@ -64,14 +105,17 @@ public class GitlabReportWriter implements ReportWriter {
     private void createDiscussions(PRReport report, DiffRef diffRefs, DiscussionsApi discussionsApi) throws GitLabApiException {
         for (Map.Entry<MutatedClass, List<PRMutant>> entry : report.getMutants().entrySet()) {
             MutatedClass mutatedClass = entry.getKey();
-            for (PRMutant mutant : entry.getValue().stream().filter(PRMutant::isSurvived).collect(Collectors.toList())) {
+            List<PRMutant> survivedMutants = entry.getValue().stream()
+                    .filter(PRMutant::isSurvived)
+                    .collect(Collectors.toList());
+            for (PRMutant mutant : survivedMutants) {
                 discussionsApi.createMergeRequestDiscussion(
                         projectId,
                         mergeRequestId,
                         mutantToBody(mutant),
                         null,
                         null,
-                        createPosition(mutatedClass, mutant, diffRefs)
+                        positionCreator.createPosition(mutatedClass, mutant, diffRefs)
                 );
             }
         }
@@ -79,17 +123,6 @@ public class GitlabReportWriter implements ReportWriter {
 
     private boolean isPitestBody(String body) {
         return body.startsWith(getProjectTag());
-    }
-
-    private Position createPosition(MutatedClass mutatedClass, PRMutant mutant, DiffRef diffRef) {
-        return new Position()
-                .withBaseSha(diffRef.getBaseSha())
-                .withHeadSha(diffRef.getHeadSha())
-                .withPositionType(Position.PositionType.TEXT)
-                .withStartSha(diffRef.getStartSha())
-                .withNewLine(mutant.getLineNumber())
-                .withNewPath(getPath(mutatedClass));
-
     }
 
     private String getProjectTag() {
@@ -103,10 +136,8 @@ public class GitlabReportWriter implements ReportWriter {
         return getProjectTag() + "\n**" + mutant.getMutator() + "**\n\n" + mutant.getDescription() + " (line " + mutant.getLineNumber() + ")";
     }
 
-    private String getPath(MutatedClass mutatedClass) {
-        String name = mutatedClass.toRealName();
-        String path = pathResolver.getPath(name);
-        LOGGER.fine("resolved path of " + name + " path = " + path);
-        return (path == null) ? name : path;
+    @Override
+    public void close() {
+        gitLabApi.close();
     }
 }

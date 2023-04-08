@@ -39,6 +39,7 @@ dependencies {
     testImplementation(libs.junit.api)
     testRuntimeOnly(libs.junit.engine)
     testImplementation(libs.logback)
+    testImplementation(libs.mockito)
 }
 
 tasks.test {
