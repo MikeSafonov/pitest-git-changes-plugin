@@ -37,8 +37,9 @@ public class ChangelogCreator {
     }
 
     private CodeChangelog createCodeChangelog(String repositoryPath, String source, String target, InterceptorParameters params) {
+        TargetClassToCodeChangeMappingFunction toCodeChange = createCodeChangeMapper(params);
         List<CodeChange> changes = new GitChangeResolver().resolve(repositoryPath, source, target)
-                .map(mapper(params))
+                .map(toCodeChange)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toList());
@@ -46,7 +47,7 @@ public class ChangelogCreator {
         return new CodeChangelog(changes);
     }
 
-    private static TargetClassToCodeChangeMappingFunction mapper(InterceptorParameters params) {
+    private static TargetClassToCodeChangeMappingFunction createCodeChangeMapper(InterceptorParameters params) {
         return new TargetClassToCodeChangeMappingFunction(
                 collectTargetClassesAndTests(params)
         );
