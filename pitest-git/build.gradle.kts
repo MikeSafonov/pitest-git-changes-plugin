@@ -87,8 +87,8 @@ signing {
 
 
 pitest {
-    pitestVersion.set("1.11.7")
-    junit5PluginVersion.set("1.1.2")
+    pitestVersion.set("1.14.4")
+    junit5PluginVersion.set("1.2.0")
     timestampedReports.set(false)
     outputFormats.set(listOf("HTML"))
 }
