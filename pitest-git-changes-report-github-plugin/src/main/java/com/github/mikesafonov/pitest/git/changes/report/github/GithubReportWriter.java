@@ -22,7 +22,6 @@ public class GithubReportWriter implements ReportWriter {
 
     private final SummaryMessageCreator messageCreator;
 
-    @SneakyThrows
     public GithubReportWriter(String token,
                               long repoId,
                               int prId,
@@ -32,7 +31,7 @@ public class GithubReportWriter implements ReportWriter {
                               GHCheckRun.AnnotationLevel survivedLevel,
                               boolean failIfMutantsPresent) {
         this(
-                GitHub.connectUsingOAuth(token).getRepositoryById(repoId),
+                createRepository(token, repoId),
                 prId,
                 sha,
                 pathResolver,
@@ -59,6 +58,12 @@ public class GithubReportWriter implements ReportWriter {
         this.survivedLevel = survivedLevel;
         this.failIfMutantsPresent = failIfMutantsPresent;
         this.messageCreator = summaryMessageCreator;
+    }
+
+    @SneakyThrows
+    private static GHRepository createRepository(String token,
+                                          long repoId) {
+        return GitHub.connectUsingOAuth(token).getRepositoryById(repoId);
     }
 
 
